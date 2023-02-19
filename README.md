@@ -1,2 +1,2 @@
-# OS-Abhistian
+# OS-Abheastian
 Operating Systems repo
