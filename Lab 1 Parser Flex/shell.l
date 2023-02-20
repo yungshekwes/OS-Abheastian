@@ -13,10 +13,21 @@
 // Headers for use in this file
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
 
 //////////// Here you can put some helper functions and code, but make sure to properly
 //////////// separate your code in logical "entities" in different files! This helps
 //////////// us grade your code as well.
+#define MAX_ARGS 100 // Maximum number of arguments for execve
+
+char* args[MAX_ARGS+1]; // Arguments for execve, plus one for NULL termination
+
+int idx = 0; // Index of the current argument being parsed
+
+void executeCommand();
 
 %}
 
@@ -64,7 +75,9 @@
 
                         // Entire string value is available in yytext with length yyleng
                         // Make sure to copy it!
+
                         printf("STRING: %s\n", yytext);
+                        args[idx++] = strdup(yytext);
 
                         //////////// Put your code here!
                     }
@@ -94,25 +107,31 @@
 "\""                BEGIN(string); /* We start reading a string until the next " char */
 "&&"                {
                         printf("Performing &&\n");
+                        executeCommand();
 
                         //////////// Put your code here!
                     }
 "||"                {
                         printf("Performing ||\n");
+                        executeCommand();
 
                         //////////// Put your code here!
                     }
-;                   { 
+;                   {   
+
                         printf("Performing ;\n");
+                        executeCommand();
 
                         //////////// Put your code here!
                     }
 \n                  {
-                        printf("Performing \\n\n");
+
+                        printf("\n");
+                        executeCommand();
 
                         //////////// Put your code here!
                     }
-[ \t]+              /* Ignore whitespace */
+[ \t]+                /* Ignore whitespace */
 [^ ;\t\n\"\^|]+     {
                         /* Here we match any sequence of characters without whitespace as a
                          * "word" or so. We should either make this the command to execute,
@@ -122,6 +141,9 @@
                         // Entire string value is available in yytext with length yyleng
                         // Make sure to copy it!
                         printf("WORD: %s\n", yytext);
+
+                        
+                        args[idx++] = strdup(yytext);
 
                         //////////// Put your code here!
                     }
@@ -137,18 +159,67 @@
 
 %%
 
+void executeCommand() {
+    // case where there is no command to execute
+    if (idx == 0) {
+        return;
+    }
+
+    // NULL terminating the argument list
+    args[idx] = NULL;
+
+    // debug to see if argument list is filled
+    // it is
+    /**
+    for (int i = 0; i < idx; i++) {
+        printf("%s, ", args[i]);
+    }
+    **/
+
+    pid_t pid;
+    pid = fork(); 
+    if (pid < 1) {
+        // case where fork failed
+        fprintf(stdout, "fork() could not create a child process!");
+        exit(0);
+    } else if (pid == 0) {
+        // case of child fork
+        
+        if (execve(args[0], args, NULL) == -1) {
+            printf("Invalid arguments or command\n");
+            exit(EXIT_FAILURE);
+        }        
+    } else {
+        // case of parent fork
+        int status;
+        if (waitpid(pid, &status, 0) == -1) {
+            printf("Child process not ended\n");
+            return;
+        }
+        if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
+            fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
+        }
+    }
+
+    // freeing argument strings
+    for (int i = 0; i < idx; i++) {
+        free(args[i]);
+    }
+
+    idx = 0;
+}
+
 /* All code after the second pair of %% is just plain C where you typically
  * write your main function and such. */
 
-int main() {
+int main(int argc, char *argv[]) {
     // Initialize program
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
 
-    // Set up some state
-
     // Start parsing process
     yylex();
+    //
 
     // Cleanup
     fclose(yyin);
