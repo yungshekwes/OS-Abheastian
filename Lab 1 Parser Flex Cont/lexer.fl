@@ -16,6 +16,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include "parser.tab.h"
 
 
 //////////// Here you can put some helper functions and code, but make sure to properly
@@ -27,6 +28,7 @@ char* args[MAX_ARGS+1]; // Arguments for execve, plus one for NULL termination
 
 int idx = 0; // Index of the current argument being parsed
 
+static void eat();
 void executeCommand();
 
 %}
@@ -105,33 +107,40 @@ void executeCommand();
 
     /* Other grammar parts */
 "\""                BEGIN(string); /* We start reading a string until the next " char */
-"&&"                {
-                        printf("Performing &&\n");
+"&&"                {   
+                        eat();
+                        return AND;
+                        // printf("Performing &&\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
-"||"                {
-                        printf("Performing ||\n");
+"||"                {   
+                        eat();
+                        return OR;
+                        // printf("Performing ||\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
 ;                   {   
-
-                        printf("Performing ;\n");
+                        eat();
+                        // printf("Performing ;\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
 \n                  {
-
-                        printf("\n");
+                        eat();
+                        // printf("\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
-[ \t]+                /* Ignore whitespace */
+[ \t]+              {
+                        eat();
+                        /* Ignore whitespace */
+                    }
 [^ ;\t\n\"\^|]+     {
                         /* Here we match any sequence of characters without whitespace as a
                          * "word" or so. We should either make this the command to execute,
@@ -144,6 +153,7 @@ void executeCommand();
 
                         
                         args[idx++] = strdup(yytext);
+                        yylval.strval = strdup(yytext); eat(); return CONARG;
 
                         //////////// Put your code here!
                     }
@@ -151,13 +161,51 @@ void executeCommand();
                         /* At EOF we should unconditionally terminate! */
                         yyterminate();
                     }
-.                   {
+.                   {   
+                        eat();
                         /* Error: unknown character! (probably doesn't happen) */
                         fprintf(stdout, "Unrecognized character: %s\n", yytext );
                         BEGIN(error);
                     }
 
 %%
+
+void initLexer(FILE *f) {
+  int length;
+  fseek (f, 0, SEEK_END);
+  length = ftell (f);
+  fseek (f, 0, SEEK_SET);
+  inputbuffer = malloc (length+1);
+  inputbuffer[length]='\0';
+  length = fread (inputbuffer, 1, length, f);
+  fseek (f, 0, SEEK_SET);
+  yyin = f;
+}
+
+void showErrorLine() {
+  char *p = inputbuffer;
+  int line = linenr;
+  while ((*p != '\0') && (line > 1)) {
+    line -= (*p == '\n');
+    p++;
+  }
+  printf("line %3d: ", linenr);
+  while ((*p != '\0') && (*p != '\n')) {
+    putchar(*p != '\t' ? *p : ' ');
+    p++;
+  }
+  putchar('\n');
+  printf("---------");
+  for (int i=colnr-strlen(yytext); i>0; i--) {
+    putchar('-');
+  }
+  printf("^\n");
+}
+ 
+void finalizeLexer() {
+  free(inputbuffer);
+  yylex_destroy();
+}
 
 void executeCommand() {
     // case where there is no command to execute
@@ -207,6 +255,17 @@ void executeCommand() {
     }
 
     idx = 0;
+}
+
+static void eat() {
+  char *s;
+  for (s=yytext; *s; s++) {
+    if (*s == '\n') {
+      linenr++;
+      colnr = 0;
+    } 
+    colnr++;
+  }
 }
 
 /* All code after the second pair of %% is just plain C where you typically

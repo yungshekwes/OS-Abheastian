@@ -1957,19 +1957,24 @@ void executeCommand() {
     // NULL terminating the argument list
     args[idx] = NULL;
 
+    // debug to see if argument list is filled
+    // it is
+    /**
     for (int i = 0; i < idx; i++) {
         printf("%s, ", args[i]);
     }
+    **/
 
     pid_t pid;
     pid = fork(); 
-    if (pid < 1) {
+    if (pid < 0) {
         // case where fork failed
         fprintf(stdout, "fork() could not create a child process!");
         exit(0);
     } else if (pid == 0) {
         // case of child fork
-        if (execve(args[0], args, NULL) == -1) {
+        
+        if (execvp(args[0], args) == -1) {
             printf("Invalid arguments or command\n");
             exit(EXIT_FAILURE);
         }        
