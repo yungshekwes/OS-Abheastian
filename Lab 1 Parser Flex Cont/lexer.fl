@@ -78,7 +78,7 @@ void executeCommand();
                         // Entire string value is available in yytext with length yyleng
                         // Make sure to copy it!
 
-                        printf("STRING: %s\n", yytext);
+                        //printf("STRING: %s\n", yytext);
                         args[idx++] = strdup(yytext);
 
                         //////////// Put your code here!
@@ -108,37 +108,37 @@ void executeCommand();
     /* Other grammar parts */
 "\""                BEGIN(string); /* We start reading a string until the next " char */
 "&&"                {   
-                        eat();
-                        return AND;
+                        // eat();
+                        // return AND;
                         // printf("Performing &&\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
 "||"                {   
-                        eat();
-                        return OR;
+                        // eat();
+                        // return OR;
                         // printf("Performing ||\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
 ;                   {   
-                        eat();
+                        // eat();
                         // printf("Performing ;\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
 \n                  {
-                        eat();
+                        // eat();
                         // printf("\n");
                         executeCommand();
 
                         //////////// Put your code here!
                     }
 [ \t]+              {
-                        eat();
+                        // eat();
                         /* Ignore whitespace */
                     }
 [^ ;\t\n\"\^|]+     {
@@ -149,7 +149,7 @@ void executeCommand();
 
                         // Entire string value is available in yytext with length yyleng
                         // Make sure to copy it!
-                        printf("WORD: %s\n", yytext);
+                        //printf("WORD: %s\n", yytext);
 
                         
                         args[idx++] = strdup(yytext);
@@ -162,9 +162,9 @@ void executeCommand();
                         yyterminate();
                     }
 .                   {   
-                        eat();
+                        // eat();
                         /* Error: unknown character! (probably doesn't happen) */
-                        fprintf(stdout, "Unrecognized character: %s\n", yytext );
+                        //fprintf(stdout, "Unrecognized character: %s\n", yytext );
                         BEGIN(error);
                     }
 

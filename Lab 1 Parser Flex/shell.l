@@ -26,7 +26,11 @@
 char* args[MAX_ARGS+1]; // Arguments for execve, plus one for NULL termination
 
 int idx = 0; // Index of the current argument being parsed
-
+int evalFlag = 0;
+int doNotExecute = 0;
+int orEnv = 0;
+int andEnv = 0;
+int status2 = 0;
 void executeCommand();
 
 %}
@@ -76,7 +80,7 @@ void executeCommand();
                         // Entire string value is available in yytext with length yyleng
                         // Make sure to copy it!
 
-                        printf("STRING: %s\n", yytext);
+                        // printf("STRING: %s\n", yytext);
                         args[idx++] = strdup(yytext);
 
                         //////////// Put your code here!
@@ -97,37 +101,64 @@ void executeCommand();
                          * here if you are sure that it is safe and valid to do so, otherwise
                          * use REJECT to let flex continue to the next match (as a string,
                          * later on). */
+                        //printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
+                        //printf("evalFlag = %d", evalFlag);
+                        if (orEnv){
+                            if (evalFlag == -1){
+                                exit(EXIT_SUCCESS);
+                            }
+                            orEnv = 0;
+                        } else if (andEnv) {
+                            if (evalFlag == 0){
+                                exit(EXIT_SUCCESS);
+                            }
+                            andEnv = 0;
+                        } else {
+                            // printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
+                            // printf("evalFlag = %d", evalFlag);
+                            exit(EXIT_SUCCESS);
+                        }
 
-                        //////////// Put your code here!
-
-                        REJECT;
                     }
-
+"status"            {
+                        // when command for status is called, display the final exit code
+                        printf("The most recent exit code is: %d\n", status2);
+                    }
     /* Other grammar parts */
 "\""                BEGIN(string); /* We start reading a string until the next " char */
 "&&"                {
-                        printf("Performing &&\n");
+                        // printf("Performing &&\n");
                         executeCommand();
-
+                        andEnv = 1;
+                        
                         //////////// Put your code here!
                     }
 "||"                {
-                        printf("Performing ||\n");
+                        // printf("Performing ||\n");
                         executeCommand();
+                        orEnv = 1;
 
                         //////////// Put your code here!
                     }
 ;                   {   
 
-                        printf("Performing ;\n");
+                        // printf("Performing ;\n");
                         executeCommand();
+                        evalFlag = 0;
+                        doNotExecute = 0;
+                        orEnv = 0;
+                        andEnv = 0;
 
                         //////////// Put your code here!
                     }
 \n                  {
 
-                        printf("\n");
+                        // printf("\n");
                         executeCommand();
+                        evalFlag = 0;
+                        doNotExecute = 0;
+                        orEnv = 0;
+                        andEnv = 0;
 
                         //////////// Put your code here!
                     }
@@ -140,7 +171,7 @@ void executeCommand();
 
                         // Entire string value is available in yytext with length yyleng
                         // Make sure to copy it!
-                        printf("WORD: %s\n", yytext);
+                        // printf("WORD: %s\n", yytext);
 
                         
                         args[idx++] = strdup(yytext);
@@ -153,7 +184,7 @@ void executeCommand();
                     }
 .                   {
                         /* Error: unknown character! (probably doesn't happen) */
-                        fprintf(stdout, "Unrecognized character: %s\n", yytext );
+                        // fprintf(stdout, "Unrecognized character: %s\n", yytext );
                         BEGIN(error);
                     }
 
@@ -165,29 +196,46 @@ void executeCommand() {
         return;
     }
 
+    if (orEnv){
+        if (evalFlag == -1){
+            doNotExecute = 0;
+        } else {
+            doNotExecute = 1;
+        }
+    } else if (andEnv) {
+        if (evalFlag == -1){
+            doNotExecute = 1;
+        } else {
+            doNotExecute = 0;
+        }        
+    }
+    if (doNotExecute){
+        for (int i = 0; i < idx; i++) {
+            free(args[i]);
+        }
+        idx = 0;
+        return;
+    }
+
     // NULL terminating the argument list
     args[idx] = NULL;
 
-    // debug to see if argument list is filled
-    // it is
-    /**
-    for (int i = 0; i < idx; i++) {
-        printf("%s, ", args[i]);
-    }
-    **/
-
     pid_t pid;
-    pid = fork(); 
+    pid = fork();
     if (pid < 0) {
         // case where fork failed
         fprintf(stdout, "fork() could not create a child process!");
         exit(0);
     } else if (pid == 0) {
         // case of child fork
-        
         if (execvp(args[0], args) == -1) {
-            printf("Invalid arguments or command\n");
-            exit(EXIT_FAILURE);
+            printf("Error: command not found!\n");
+            evalFlag = -1;
+            status2 = 127;
+            // exit(EXIT_FAILURE);
+        } else {
+            evalFlag = 0;
+            status2 = 0;
         }        
     } else {
         // case of parent fork
@@ -207,6 +255,8 @@ void executeCommand() {
     }
 
     idx = 0;
+    orEnv = 0;
+    andEnv = 0;
 }
 
 /* All code after the second pair of %% is just plain C where you typically
@@ -219,7 +269,6 @@ int main(int argc, char *argv[]) {
 
     // Start parsing process
     yylex();
-    //
 
     // Cleanup
     fclose(yyin);
