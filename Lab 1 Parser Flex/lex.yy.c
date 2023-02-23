@@ -490,9 +490,11 @@ int doNotExecute = 0;
 int orEnv = 0;
 int andEnv = 0;
 int status2 = 0;
+int temp;
+int statusFlag = 0;
 void executeCommand();
 
-#line 496 "lex.yy.c"
+#line 498 "lex.yy.c"
 /**
  * Parsing in flex is done based on a series of regexes. Below, we list these regexes
  * in order, flex will try to match the input with these in order. As soon as any regex
@@ -516,7 +518,7 @@ void executeCommand();
 
 /* Here we inform flex to not "look ahead" in stdin beyond what is necessary, to prevent
  * issues with passing stdin to another executable. */
-#line 520 "lex.yy.c"
+#line 522 "lex.yy.c"
 
 #define INITIAL 0
 #define string 1
@@ -735,16 +737,16 @@ YY_DECL
 		}
 
 	{
-#line 65 "shell.l"
-
 #line 67 "shell.l"
+
+#line 69 "shell.l"
     /* From here on, comments must be indented! */
 
     /* Here we start with the rules. The highest priority rules are those to accept any
      * symbol when we are reading a string (so in the STRING context). */
     
     /* The first rule is to match the closing " char */
-#line 748 "lex.yy.c"
+#line 750 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -803,14 +805,14 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 73 "shell.l"
+#line 75 "shell.l"
 BEGIN(INITIAL); /* Return to normal parsing */
 	YY_BREAK
 /* The second rule takes the longest string of characters not being " */
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 76 "shell.l"
+#line 78 "shell.l"
 {
                         /* Here we match any entire string. We should either make this
                          * the command to execute, or store this as an option, or it is
@@ -830,19 +832,19 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 92 "shell.l"
+#line 94 "shell.l"
 BEGIN(INITIAL); /* Return to normal parsing */
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 93 "shell.l"
+#line 95 "shell.l"
 
 	YY_BREAK
 /* From here on, we have only "normal" rules for our parsing */
 /* Built-in commands */
 case 5:
 YY_RULE_SETUP
-#line 98 "shell.l"
+#line 100 "shell.l"
 {
                         /* For built-in command names, make sure that we are not currently
                          * parsing options or some other place where we cannot reasonably
@@ -858,6 +860,8 @@ YY_RULE_SETUP
                             }
                             orEnv = 0;
                         } else if (andEnv) {
+                            //printf("test");
+                            //printf("evalFlag = %d\n", evalFlag);
                             if (evalFlag == 0){
                                 exit(EXIT_SUCCESS);
                             }
@@ -872,23 +876,37 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 124 "shell.l"
+#line 128 "shell.l"
 {
                         // when command for status is called, display the final exit code
-                        printf("The most recent exit code is: %d", status2);
+                        statusFlag = 1;
+                        if (orEnv){
+                            if (evalFlag == -1){
+                                printf("The most recent exit code is: %d\n", status2);
+                            }
+                            orEnv = 0;
+                        } else if (andEnv) {
+                            if (evalFlag == 0){
+                                printf("The most recent exit code is: %d\n", status2);
+                            }
+                            andEnv = 0;
+                        } else {
+                            printf("The most recent exit code is: %d\n", status2);
+                        }
                     }
 	YY_BREAK
 /* Other grammar parts */
 case 7:
 YY_RULE_SETUP
-#line 129 "shell.l"
+#line 146 "shell.l"
 BEGIN(string); /* We start reading a string until the next " char */
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 130 "shell.l"
+#line 147 "shell.l"
 {
                         // printf("Performing &&\n");
+                        printf("evalFlag before executing echo b = %d", evalFlag);
                         executeCommand();
                         andEnv = 1;
                         
@@ -897,7 +915,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 137 "shell.l"
+#line 155 "shell.l"
 {
                         // printf("Performing ||\n");
                         executeCommand();
@@ -908,12 +926,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 144 "shell.l"
+#line 162 "shell.l"
 {   
 
                         // printf("Performing ;\n");
                         executeCommand();
-                        evalFlag = 0;
                         doNotExecute = 0;
                         orEnv = 0;
                         andEnv = 0;
@@ -924,27 +941,26 @@ YY_RULE_SETUP
 case 11:
 /* rule 11 can match eol */
 YY_RULE_SETUP
-#line 155 "shell.l"
+#line 172 "shell.l"
 {
-
                         // printf("\n");
                         executeCommand();
-                        evalFlag = 0;
                         doNotExecute = 0;
                         orEnv = 0;
                         andEnv = 0;
+                        statusFlag = 0;
 
                         //////////// Put your code here!
                     }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 166 "shell.l"
+#line 182 "shell.l"
 /* Ignore whitespace */
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 167 "shell.l"
+#line 183 "shell.l"
 {
                         /* Here we match any sequence of characters without whitespace as a
                          * "word" or so. We should either make this the command to execute,
@@ -964,7 +980,7 @@ YY_RULE_SETUP
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string):
 case YY_STATE_EOF(error):
-#line 182 "shell.l"
+#line 198 "shell.l"
 {
                         /* At EOF we should unconditionally terminate! */
                         yyterminate();
@@ -972,7 +988,7 @@ case YY_STATE_EOF(error):
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 186 "shell.l"
+#line 202 "shell.l"
 {
                         /* Error: unknown character! (probably doesn't happen) */
                         // fprintf(stdout, "Unrecognized character: %s\n", yytext );
@@ -981,10 +997,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 192 "shell.l"
+#line 208 "shell.l"
 ECHO;
 	YY_BREAK
-#line 988 "lex.yy.c"
+#line 1004 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1987,15 +2003,22 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 192 "shell.l"
+#line 208 "shell.l"
+
 
 
 void executeCommand() {
+    if (statusFlag) {
+        for (int i = 0; i < idx; i++) {
+            free(args[i]);
+        }
+        idx = 0;
+    }
     // case where there is no command to execute
     if (idx == 0) {
         return;
     }
-
+    printf("orEnv = %d, andEnv = %d, evalFlag = %d\n", orEnv, andEnv, evalFlag);
     if (orEnv){
         if (evalFlag == -1){
             doNotExecute = 0;
@@ -2014,6 +2037,11 @@ void executeCommand() {
             free(args[i]);
         }
         idx = 0;
+        if (orEnv) {
+            orEnv = 0;
+        } else if (andEnv) {
+            andEnv = 0;
+        }
         return;
     }
 
@@ -2027,33 +2055,41 @@ void executeCommand() {
         fprintf(stdout, "fork() could not create a child process!");
         exit(0);
     } else if (pid == 0) {
+        //printf("entered child fork\n");
         // case of child fork
         if (execvp(args[0], args) == -1) {
             printf("Error: command not found!\n");
+            // WHY THE FUCK DOES EVALFLAG NOT CHANGE TO -1???
             evalFlag = -1;
+            printf("evalFlag in child fork = %d\n", evalFlag);
             status2 = 127;
             // exit(EXIT_FAILURE);
         } else {
+            printf("test2\n");
             evalFlag = 0;
             status2 = 0;
-        }        
+        }
+        // exit from the child process
+        exit(status2);
     } else {
         // case of parent fork
         int status;
-        if (waitpid(pid, &status, 0) == -1) {
+        //printf("entered parent fork\n");
+        if (wait(&status) == -1) {
             printf("Child process not ended\n");
             return;
         }
-        if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
-            fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
-        }
+        //status2 = WEXITSTATUS(status);
+        //printf("exit status: %d\n", WEXITSTATUS(status));
+        // if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
+        //     fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
+        // }
     }
 
     // freeing argument strings
     for (int i = 0; i < idx; i++) {
         free(args[i]);
     }
-
     idx = 0;
     orEnv = 0;
     andEnv = 0;

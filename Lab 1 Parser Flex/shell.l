@@ -31,6 +31,8 @@ int doNotExecute = 0;
 int orEnv = 0;
 int andEnv = 0;
 int status2 = 0;
+int temp;
+int statusFlag = 0;
 void executeCommand();
 
 %}
@@ -109,6 +111,8 @@ void executeCommand();
                             }
                             orEnv = 0;
                         } else if (andEnv) {
+                            //printf("test");
+                            //printf("evalFlag = %d\n", evalFlag);
                             if (evalFlag == 0){
                                 exit(EXIT_SUCCESS);
                             }
@@ -122,12 +126,26 @@ void executeCommand();
                     }
 "status"            {
                         // when command for status is called, display the final exit code
-                        printf("The most recent exit code is: %d\n", status2);
+                        statusFlag = 1;
+                        if (orEnv){
+                            if (evalFlag == -1){
+                                printf("The most recent exit code is: %d\n", status2);
+                            }
+                            orEnv = 0;
+                        } else if (andEnv) {
+                            if (evalFlag == 0){
+                                printf("The most recent exit code is: %d\n", status2);
+                            }
+                            andEnv = 0;
+                        } else {
+                            printf("The most recent exit code is: %d\n", status2);
+                        }
                     }
     /* Other grammar parts */
 "\""                BEGIN(string); /* We start reading a string until the next " char */
 "&&"                {
                         // printf("Performing &&\n");
+                        printf("evalFlag before executing echo b = %d", evalFlag);
                         executeCommand();
                         andEnv = 1;
                         
@@ -152,13 +170,13 @@ void executeCommand();
                         //////////// Put your code here!
                     }
 \n                  {
-
                         // printf("\n");
                         executeCommand();
                         evalFlag = 0;
                         doNotExecute = 0;
                         orEnv = 0;
                         andEnv = 0;
+                        statusFlag = 0;
 
                         //////////// Put your code here!
                     }
@@ -190,12 +208,19 @@ void executeCommand();
 
 %%
 
+
 void executeCommand() {
+    if (statusFlag) {
+        for (int i = 0; i < idx; i++) {
+            free(args[i]);
+        }
+        idx = 0;
+    }
     // case where there is no command to execute
     if (idx == 0) {
         return;
     }
-
+    printf("orEnv = %d, andEnv = %d, evalFlag = %d\n", orEnv, andEnv, evalFlag);
     if (orEnv){
         if (evalFlag == -1){
             doNotExecute = 0;
@@ -214,6 +239,11 @@ void executeCommand() {
             free(args[i]);
         }
         idx = 0;
+        if (orEnv) {
+            orEnv = 0;
+        } else if (andEnv) {
+            andEnv = 0;
+        }
         return;
     }
 
@@ -227,33 +257,41 @@ void executeCommand() {
         fprintf(stdout, "fork() could not create a child process!");
         exit(0);
     } else if (pid == 0) {
+        //printf("entered child fork\n");
         // case of child fork
         if (execvp(args[0], args) == -1) {
             printf("Error: command not found!\n");
+            // WHY THE FUCK DOES EVALFLAG NOT CHANGE TO -1???
             evalFlag = -1;
+            printf("evalFlag in child fork = %d\n", evalFlag);
             status2 = 127;
             // exit(EXIT_FAILURE);
         } else {
+            printf("test2\n");
             evalFlag = 0;
             status2 = 0;
-        }        
+        }
+        // exit from the child process
+        exit(status2);
     } else {
         // case of parent fork
         int status;
-        if (waitpid(pid, &status, 0) == -1) {
+        //printf("entered parent fork\n");
+        if (wait(&status) == -1) {
             printf("Child process not ended\n");
             return;
         }
-        if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
-            fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
-        }
+        //status2 = WEXITSTATUS(status);
+        //printf("exit status: %d\n", WEXITSTATUS(status));
+        // if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
+        //     fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
+        // }
     }
 
     // freeing argument strings
     for (int i = 0; i < idx; i++) {
         free(args[i]);
     }
-
     idx = 0;
     orEnv = 0;
     andEnv = 0;
