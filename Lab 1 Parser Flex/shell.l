@@ -10,7 +10,7 @@
 
 /* Here we enter a section that is copied verbatim to the output */
 %{
-// Headers for use in this file
+// Headers for use in this file./
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

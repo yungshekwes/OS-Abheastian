@@ -931,6 +931,7 @@ YY_RULE_SETUP
 
                         // printf("Performing ;\n");
                         executeCommand();
+                        evalFlag = 0;
                         doNotExecute = 0;
                         orEnv = 0;
                         andEnv = 0;
@@ -941,10 +942,11 @@ YY_RULE_SETUP
 case 11:
 /* rule 11 can match eol */
 YY_RULE_SETUP
-#line 172 "shell.l"
+#line 173 "shell.l"
 {
                         // printf("\n");
                         executeCommand();
+                        evalFlag = 0;
                         doNotExecute = 0;
                         orEnv = 0;
                         andEnv = 0;
@@ -955,12 +957,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 182 "shell.l"
+#line 184 "shell.l"
 /* Ignore whitespace */
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 183 "shell.l"
+#line 185 "shell.l"
 {
                         /* Here we match any sequence of characters without whitespace as a
                          * "word" or so. We should either make this the command to execute,
@@ -980,7 +982,7 @@ YY_RULE_SETUP
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string):
 case YY_STATE_EOF(error):
-#line 198 "shell.l"
+#line 200 "shell.l"
 {
                         /* At EOF we should unconditionally terminate! */
                         yyterminate();
@@ -988,7 +990,7 @@ case YY_STATE_EOF(error):
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 202 "shell.l"
+#line 204 "shell.l"
 {
                         /* Error: unknown character! (probably doesn't happen) */
                         // fprintf(stdout, "Unrecognized character: %s\n", yytext );
@@ -997,10 +999,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 208 "shell.l"
+#line 210 "shell.l"
 ECHO;
 	YY_BREAK
-#line 1004 "lex.yy.c"
+#line 1006 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2003,7 +2005,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 208 "shell.l"
+#line 210 "shell.l"
 
 
 
