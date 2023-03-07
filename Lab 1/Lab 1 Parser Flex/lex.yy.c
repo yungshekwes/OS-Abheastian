@@ -352,8 +352,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 15
-#define YY_END_OF_BUFFER 16
+#define YY_NUM_RULES 17
+#define YY_END_OF_BUFFER 18
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -361,12 +361,13 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[36] =
+static const flex_int16_t yy_accept[45] =
     {   0,
-        0,    0,    0,    0,    0,    0,   16,   13,   12,   11,
-        7,   13,   10,   14,   13,   13,   14,    2,    1,    4,
-        3,   13,   12,    8,   13,   13,    9,    2,   13,   13,
-        5,   13,   13,    6,    0
+        0,    0,    0,    0,    0,    0,   18,   15,   14,   13,
+        9,   15,   12,   16,   15,   15,   15,   15,   16,    2,
+        1,    4,    3,   15,   14,   10,   15,   15,   15,   15,
+       11,    2,   15,   15,   15,   15,    5,   15,   15,    7,
+        8,   15,    6,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -382,9 +383,9 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    7,    1,    1,    8,    1,    1,    1,
 
-        9,    1,    1,    1,   10,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,   11,   12,   13,    1,    1,   14,
-        1,    1,    1,   15,    1,    1,    1,    1,    1,    1,
+        9,   10,    1,    1,   11,    1,    1,   12,    1,    1,
+        1,    1,    1,   13,   14,   15,   16,    1,    1,   17,
+        1,    1,    1,   18,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -401,46 +402,50 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[16] =
+static const YY_CHAR yy_meta[19] =
     {   0,
         1,    2,    2,    3,    1,    2,    2,    1,    1,    1,
-        1,    1,    1,    1,    2
+        1,    1,    1,    1,    1,    1,    1,    2
     } ;
 
-static const flex_int16_t yy_base[40] =
+static const flex_int16_t yy_base[49] =
     {   0,
-        0,    0,   37,   36,   36,   35,   37,    0,   34,   42,
-       42,   30,   42,   42,   20,   21,   17,    0,   42,   42,
-       42,    0,   29,    0,   20,   21,   42,    0,   16,   15,
-        0,   13,   14,    0,   42,   15,   18,   23,   21
+        0,    0,   47,   46,   46,   45,   47,    0,   44,   52,
+       52,   40,   52,   52,   27,   35,   27,   28,   22,    0,
+       52,   52,   52,    0,   37,    0,   27,   25,   28,   19,
+       52,    0,   19,   19,   17,   22,    0,   21,   13,    0,
+        0,   14,    0,   52,   18,   21,   26,   24
     } ;
 
-static const flex_int16_t yy_def[40] =
+static const flex_int16_t yy_def[49] =
     {   0,
-       35,    1,   36,   36,   37,   37,   35,   38,   35,   35,
-       35,   38,   35,   35,   38,   38,   35,   39,   35,   35,
-       35,   38,   35,   38,   38,   38,   35,   39,   38,   38,
-       38,   38,   38,   38,    0,   35,   35,   35,   35
+       44,    1,   45,   45,   46,   46,   44,   47,   44,   44,
+       44,   47,   44,   44,   47,   47,   47,   47,   44,   48,
+       44,   44,   44,   47,   44,   47,   47,   47,   47,   47,
+       44,   48,   47,   47,   47,   47,   47,   47,   47,   47,
+       47,   47,   47,    0,   44,   44,   44,   44
     } ;
 
-static const flex_int16_t yy_nxt[58] =
+static const flex_int16_t yy_nxt[71] =
     {   0,
-        8,    9,   10,   11,   12,   13,   14,    8,   15,    8,
-       16,    8,    8,    8,   17,   18,   18,   18,   20,   20,
-       20,   28,   28,   22,   34,   33,   32,   31,   30,   29,
-       23,   27,   26,   25,   24,   23,   35,   21,   21,   19,
-       19,    7,   35,   35,   35,   35,   35,   35,   35,   35,
-       35,   35,   35,   35,   35,   35,   35
+        8,    9,   10,   11,   12,   13,   14,    8,   15,   16,
+        8,    8,    8,   17,   18,    8,    8,   19,   20,   20,
+       20,   22,   22,   22,   32,   32,   24,   43,   42,   41,
+       40,   39,   38,   37,   36,   35,   34,   33,   25,   31,
+       30,   29,   28,   27,   26,   25,   44,   23,   23,   21,
+       21,    7,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44
     } ;
 
-static const flex_int16_t yy_chk[58] =
+static const flex_int16_t yy_chk[71] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,   36,   36,   36,   37,   37,
-       37,   39,   39,   38,   33,   32,   30,   29,   26,   25,
-       23,   17,   16,   15,   12,    9,    7,    6,    5,    4,
-        3,   35,   35,   35,   35,   35,   35,   35,   35,   35,
-       35,   35,   35,   35,   35,   35,   35
+        1,    1,    1,    1,    1,    1,    1,    1,   45,   45,
+       45,   46,   46,   46,   48,   48,   47,   42,   39,   38,
+       36,   35,   34,   33,   30,   29,   28,   27,   25,   19,
+       18,   17,   16,   15,   12,    9,    7,    6,    5,    4,
+        3,   44,   44,   44,   44,   44,   44,   44,   44,   44,
+       44,   44,   44,   44,   44,   44,   44,   44,   44,   44
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -469,7 +474,7 @@ char *yytext;
  */
 /* Here we enter a section that is copied verbatim to the output */
 #line 13 "shell.l"
-// Headers for use in this file
+// Headers for use in this file./
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -494,7 +499,7 @@ int temp;
 int statusFlag = 0;
 void executeCommand();
 
-#line 498 "lex.yy.c"
+#line 503 "lex.yy.c"
 /**
  * Parsing in flex is done based on a series of regexes. Below, we list these regexes
  * in order, flex will try to match the input with these in order. As soon as any regex
@@ -518,7 +523,7 @@ void executeCommand();
 
 /* Here we inform flex to not "look ahead" in stdin beyond what is necessary, to prevent
  * issues with passing stdin to another executable. */
-#line 522 "lex.yy.c"
+#line 527 "lex.yy.c"
 
 #define INITIAL 0
 #define string 1
@@ -746,7 +751,7 @@ YY_DECL
      * symbol when we are reading a string (so in the STRING context). */
     
     /* The first rule is to match the closing " char */
-#line 750 "lex.yy.c"
+#line 755 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -773,13 +778,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 36 )
+				if ( yy_current_state >= 45 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 42 );
+		while ( yy_base[yy_current_state] != 52 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -854,68 +859,86 @@ YY_RULE_SETUP
                          * later on). */
                         //printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
                         //printf("evalFlag = %d", evalFlag);
-                        if (orEnv){
-                            if (evalFlag == -1){
-                                exit(EXIT_SUCCESS);
-                            }
-                            orEnv = 0;
-                        } else if (andEnv) {
-                            //printf("test");
-                            //printf("evalFlag = %d\n", evalFlag);
-                            if (evalFlag == 0){
-                                exit(EXIT_SUCCESS);
-                            }
-                            andEnv = 0;
+                        if (idx != 0){
+                            args[idx++] = strdup("exit");
                         } else {
-                            // printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
-                            // printf("evalFlag = %d", evalFlag);
-                            exit(EXIT_SUCCESS);
+                            if (orEnv){
+                                if (evalFlag == -1){
+                                    exit(EXIT_SUCCESS);
+                                }
+                                orEnv = 0;
+                            } else if (andEnv) {
+                                //printf("test");
+                                // printf("evalFlag = %d\n", evalFlag);
+                                if (evalFlag == 0){
+                                    exit(EXIT_SUCCESS);
+                                }
+                                andEnv = 0;
+                            } else {
+                                // printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
+                                // printf("evalFlag = %d", evalFlag);
+                                exit(EXIT_SUCCESS);
+                            }
                         }
 
                     }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 128 "shell.l"
+#line 132 "shell.l"
 {
                         // when command for status is called, display the final exit code
-                        statusFlag = 1;
-                        if (orEnv){
-                            if (evalFlag == -1){
-                                printf("The most recent exit code is: %d\n", status2);
-                            }
-                            orEnv = 0;
-                        } else if (andEnv) {
-                            if (evalFlag == 0){
-                                printf("The most recent exit code is: %d\n", status2);
-                            }
-                            andEnv = 0;
+                        if (idx != 0){
+                            args[idx++] = strdup("status");
                         } else {
-                            printf("The most recent exit code is: %d\n", status2);
+                            statusFlag = 1;
+                            if (orEnv){
+                                if (evalFlag == -1){
+                                    printf("The most recent exit code is: %d\n", status2);
+                                }
+                                orEnv = 0;
+                            } else if (andEnv) {
+                                if (evalFlag == 0){
+                                    printf("The most recent exit code is: %d\n", status2);
+                                }
+                                andEnv = 0;
+                            } else {
+                                printf("The most recent exit code is: %d\n", status2);
+                            }
                         }
                     }
 	YY_BREAK
-/* Other grammar parts */
 case 7:
 YY_RULE_SETUP
-#line 146 "shell.l"
-BEGIN(string); /* We start reading a string until the next " char */
+#line 153 "shell.l"
+{evalFlag = 0;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 147 "shell.l"
+#line 154 "shell.l"
+{evalFlag = -1;}
+	YY_BREAK
+/* Other grammar parts */
+case 9:
+YY_RULE_SETUP
+#line 156 "shell.l"
+BEGIN(string); /* We start reading a string until the next " char */
+	YY_BREAK
+case 10:
+YY_RULE_SETUP
+#line 157 "shell.l"
 {
                         // printf("Performing &&\n");
-                        printf("evalFlag before executing echo b = %d", evalFlag);
+                        //printf("evalFlag before executing echo b = %d", evalFlag);
                         executeCommand();
                         andEnv = 1;
                         
                         //////////// Put your code here!
                     }
 	YY_BREAK
-case 9:
+case 11:
 YY_RULE_SETUP
-#line 155 "shell.l"
+#line 165 "shell.l"
 {
                         // printf("Performing ||\n");
                         executeCommand();
@@ -924,9 +947,9 @@ YY_RULE_SETUP
                         //////////// Put your code here!
                     }
 	YY_BREAK
-case 10:
+case 12:
 YY_RULE_SETUP
-#line 162 "shell.l"
+#line 172 "shell.l"
 {   
 
                         // printf("Performing ;\n");
@@ -939,10 +962,10 @@ YY_RULE_SETUP
                         //////////// Put your code here!
                     }
 	YY_BREAK
-case 11:
-/* rule 11 can match eol */
+case 13:
+/* rule 13 can match eol */
 YY_RULE_SETUP
-#line 173 "shell.l"
+#line 183 "shell.l"
 {
                         // printf("\n");
                         executeCommand();
@@ -955,14 +978,14 @@ YY_RULE_SETUP
                         //////////// Put your code here!
                     }
 	YY_BREAK
-case 12:
+case 14:
 YY_RULE_SETUP
-#line 184 "shell.l"
+#line 194 "shell.l"
 /* Ignore whitespace */
 	YY_BREAK
-case 13:
+case 15:
 YY_RULE_SETUP
-#line 185 "shell.l"
+#line 195 "shell.l"
 {
                         /* Here we match any sequence of characters without whitespace as a
                          * "word" or so. We should either make this the command to execute,
@@ -982,27 +1005,27 @@ YY_RULE_SETUP
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(string):
 case YY_STATE_EOF(error):
-#line 200 "shell.l"
+#line 210 "shell.l"
 {
                         /* At EOF we should unconditionally terminate! */
                         yyterminate();
                     }
 	YY_BREAK
-case 14:
+case 16:
 YY_RULE_SETUP
-#line 204 "shell.l"
+#line 214 "shell.l"
 {
                         /* Error: unknown character! (probably doesn't happen) */
                         // fprintf(stdout, "Unrecognized character: %s\n", yytext );
                         BEGIN(error);
                     }
 	YY_BREAK
-case 15:
+case 17:
 YY_RULE_SETUP
-#line 210 "shell.l"
+#line 220 "shell.l"
 ECHO;
 	YY_BREAK
-#line 1006 "lex.yy.c"
+#line 1029 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1297,7 +1320,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 36 )
+			if ( yy_current_state >= 45 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1325,11 +1348,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 36 )
+		if ( yy_current_state >= 45 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 35);
+	yy_is_jam = (yy_current_state == 44);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2005,7 +2028,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 210 "shell.l"
+#line 220 "shell.l"
 
 
 
@@ -2020,7 +2043,7 @@ void executeCommand() {
     if (idx == 0) {
         return;
     }
-    printf("orEnv = %d, andEnv = %d, evalFlag = %d\n", orEnv, andEnv, evalFlag);
+    // printf("orEnv = %d, andEnv = %d, evalFlag = %d\n", orEnv, andEnv, evalFlag);
     if (orEnv){
         if (evalFlag == -1){
             doNotExecute = 0;
@@ -2063,26 +2086,38 @@ void executeCommand() {
             printf("Error: command not found!\n");
             // WHY THE FUCK DOES EVALFLAG NOT CHANGE TO -1???
             evalFlag = -1;
-            printf("evalFlag in child fork = %d\n", evalFlag);
+            // printf("evalFlag in child fork = %d\n", evalFlag);
             status2 = 127;
             // exit(EXIT_FAILURE);
         } else {
-            printf("test2\n");
+            //printf("test2\n");
             evalFlag = 0;
+            //printf("evalFlag in child fork at else = %d\n", evalFlag);
             status2 = 0;
         }
         // exit from the child process
-        exit(status2);
+        // printf("evalFlag value at end of child process: %d\n", evalFlag);
+        exit(evalFlag);
     } else {
         // case of parent fork
         int status;
         //printf("entered parent fork\n");
-        if (wait(&status) == -1) {
+        // if (wait(&status) == -1) {
+        //     printf("Child process not ended\n");
+        //     return;
+        // }
+        if (waitpid(pid, &status, 0) == -1) {
             printf("Child process not ended\n");
-            return;
+            exit(1);
         }
-        //status2 = WEXITSTATUS(status);
-        //printf("exit status: %d\n", WEXITSTATUS(status));
+        // works = 0, does not work = 255
+        if (WEXITSTATUS(status) == 255) {
+            evalFlag = -1;
+        } else if (WEXITSTATUS(status) == 0){
+            evalFlag = 0;
+        }
+        // status2 = WEXITSTATUS(status);
+        // printf("parent evalFlag: %d\n", evalFlag);
         // if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
         //     fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
         // }

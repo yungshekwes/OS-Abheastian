@@ -105,47 +105,57 @@ void executeCommand();
                          * later on). */
                         //printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
                         //printf("evalFlag = %d", evalFlag);
-                        if (orEnv){
-                            if (evalFlag == -1){
-                                exit(EXIT_SUCCESS);
-                            }
-                            orEnv = 0;
-                        } else if (andEnv) {
-                            //printf("test");
-                            //printf("evalFlag = %d\n", evalFlag);
-                            if (evalFlag == 0){
-                                exit(EXIT_SUCCESS);
-                            }
-                            andEnv = 0;
+                        if (idx != 0){
+                            args[idx++] = strdup("exit");
                         } else {
-                            // printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
-                            // printf("evalFlag = %d", evalFlag);
-                            exit(EXIT_SUCCESS);
+                            if (orEnv){
+                                if (evalFlag == -1){
+                                    exit(EXIT_SUCCESS);
+                                }
+                                orEnv = 0;
+                            } else if (andEnv) {
+                                //printf("test");
+                                // printf("evalFlag = %d\n", evalFlag);
+                                if (evalFlag == 0){
+                                    exit(EXIT_SUCCESS);
+                                }
+                                andEnv = 0;
+                            } else {
+                                // printf("andEnv = %d, orEnv = %d\n", andEnv, orEnv);
+                                // printf("evalFlag = %d", evalFlag);
+                                exit(EXIT_SUCCESS);
+                            }
                         }
 
                     }
 "status"            {
                         // when command for status is called, display the final exit code
-                        statusFlag = 1;
-                        if (orEnv){
-                            if (evalFlag == -1){
-                                printf("The most recent exit code is: %d\n", status2);
-                            }
-                            orEnv = 0;
-                        } else if (andEnv) {
-                            if (evalFlag == 0){
-                                printf("The most recent exit code is: %d\n", status2);
-                            }
-                            andEnv = 0;
+                        if (idx != 0){
+                            args[idx++] = strdup("status");
                         } else {
-                            printf("The most recent exit code is: %d\n", status2);
+                            statusFlag = 1;
+                            if (orEnv){
+                                if (evalFlag == -1){
+                                    printf("The most recent exit code is: %d\n", status2);
+                                }
+                                orEnv = 0;
+                            } else if (andEnv) {
+                                if (evalFlag == 0){
+                                    printf("The most recent exit code is: %d\n", status2);
+                                }
+                                andEnv = 0;
+                            } else {
+                                printf("The most recent exit code is: %d\n", status2);
+                            }
                         }
                     }
+"true"              {evalFlag = 0;}
+"false"             {evalFlag = -1;}
     /* Other grammar parts */
 "\""                BEGIN(string); /* We start reading a string until the next " char */
 "&&"                {
                         // printf("Performing &&\n");
-                        printf("evalFlag before executing echo b = %d", evalFlag);
+                        //printf("evalFlag before executing echo b = %d", evalFlag);
                         executeCommand();
                         andEnv = 1;
                         
@@ -220,7 +230,7 @@ void executeCommand() {
     if (idx == 0) {
         return;
     }
-    printf("orEnv = %d, andEnv = %d, evalFlag = %d\n", orEnv, andEnv, evalFlag);
+    // printf("orEnv = %d, andEnv = %d, evalFlag = %d\n", orEnv, andEnv, evalFlag);
     if (orEnv){
         if (evalFlag == -1){
             doNotExecute = 0;
@@ -263,26 +273,38 @@ void executeCommand() {
             printf("Error: command not found!\n");
             // WHY THE FUCK DOES EVALFLAG NOT CHANGE TO -1???
             evalFlag = -1;
-            printf("evalFlag in child fork = %d\n", evalFlag);
+            // printf("evalFlag in child fork = %d\n", evalFlag);
             status2 = 127;
             // exit(EXIT_FAILURE);
         } else {
-            printf("test2\n");
+            //printf("test2\n");
             evalFlag = 0;
+            //printf("evalFlag in child fork at else = %d\n", evalFlag);
             status2 = 0;
         }
         // exit from the child process
-        exit(status2);
+        // printf("evalFlag value at end of child process: %d\n", evalFlag);
+        exit(evalFlag);
     } else {
         // case of parent fork
         int status;
         //printf("entered parent fork\n");
-        if (wait(&status) == -1) {
+        // if (wait(&status) == -1) {
+        //     printf("Child process not ended\n");
+        //     return;
+        // }
+        if (waitpid(pid, &status, 0) == -1) {
             printf("Child process not ended\n");
-            return;
+            exit(1);
         }
-        //status2 = WEXITSTATUS(status);
-        //printf("exit status: %d\n", WEXITSTATUS(status));
+        // works = 0, does not work = 255
+        if (WEXITSTATUS(status) == 255) {
+            evalFlag = -1;
+        } else if (WEXITSTATUS(status) == 0){
+            evalFlag = 0;
+        }
+        // status2 = WEXITSTATUS(status);
+        // printf("parent evalFlag: %d\n", evalFlag);
         // if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
         //     fprintf(stdout, "Command failed with exit status %d\n", WEXITSTATUS(status));
         // }
