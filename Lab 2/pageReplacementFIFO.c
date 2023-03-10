@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-void dequeue(){
-
-}
 
 int main(){
     // Initialize max size inputStream and variables used.
@@ -35,6 +32,7 @@ int main(){
     // Loop through all characters in input stream
     for (int i = 0; i < streamSize; i++){
         
+        // If queue is empty, fill queue up with references and incrememnt pageFault. If reference is already in queue, do not fill up
         if (back != physMem){
 
             for (int y = 0; y < physMem; y++){
@@ -53,6 +51,7 @@ int main(){
 
             flag = 0;
 
+        // Check if reference is in queue. If not, create temporary array which pushes the current input integer and pops the oldest integer
         } else {
 
             for (int y = 0; y < physMem; y++){
@@ -78,6 +77,7 @@ int main(){
 
     }
 
+    // Print final pageFault counter
     printf("%d\n", pageFault);
 
     return 0;

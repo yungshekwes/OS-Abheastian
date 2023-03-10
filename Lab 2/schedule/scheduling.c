@@ -66,6 +66,7 @@ void display(Queue* queue) {
 struct Jobs {
     int job;
     int ref;
+    int idx;
 };
 
 struct Process {
@@ -81,6 +82,7 @@ struct Process {
     int IOJobCount;
     int CPUJobCount;
     int TotalJobCount;
+    int totalTime;
 };
 
 // TODO: Read input correctly, make queue, implement algo
@@ -90,8 +92,10 @@ int main() {
     int ticker = 0;
     Queue* cpu = createQueue();
     Queue* cpuref = createQueue();
+    Queue* cpuidx = createQueue();
     Queue* io = createQueue();
     Queue* ioref = createQueue();
+    Queue* ioidx = createQueue();
     struct Jobs curCpu;
     struct Jobs curIo;
     curCpu.job = -1;
@@ -130,94 +134,106 @@ int main() {
         proIdx++;
         
     }
-    for (int i = 0; i < proIdx; i++){
-    printf("arrival time = %d\n", processes[i].arrivalTime);
-    for (int y  = 0; y < processes[i].CPUJobIdx; y++){
-        printf("CPUJob%d = %d\n", y, processes[i].CPUJobs[y]);
-    }
-    for (int y  = 0; y < processes[i].IOJobIdx; y++){
-        printf("IOJob%d = %d\n", y, processes[i].IOJobs[y]);
-    }
-    }
+    // for (int i = 0; i < proIdx; i++){
+    // printf("arrival time = %d\n", processes[i].arrivalTime);
+    // printf("CPUJOBIDX = %d\n", processes[i].CPUJobIdx);
+    // printf("IOJOBIDX = %d\n", processes[i].IOJobIdx);
+    // for (int y  = 0; y < processes[i].CPUJobIdx; y++){
+    //     printf("CPUJob%d = %d\n", y, processes[i].CPUJobs[y]);
+    // }
+    // for (int y  = 0; y < processes[i].IOJobIdx; y++){
+    //     printf("IOJob%d = %d\n", y, processes[i].IOJobs[y]);
+    // }
+    // }
     int arrivalIdx = 0;
     double totalTime = 0;
     int tempo = 0;
     while(1){
         if (tempo == proIdx){
+            //printf("BREAKING\n");
             break;
         }
-       //printf("TICKER IS %d\n", ticker);
+       // printf("TICKER IS %d\n", ticker);
         if (processes[arrivalIdx].arrivalTime == ticker){
             struct Jobs temp;
             temp.job = processes[arrivalIdx].CPUJobs[processes[arrivalIdx].CPUJobCount];
             temp.ref = processes[arrivalIdx].CPUJobsRef[processes[arrivalIdx].CPUJobCount];
+            temp.idx = processes[arrivalIdx].CPUJobCount;
             processes[arrivalIdx].CPUJobCount++;
             processes[arrivalIdx].TotalJobCount++;
-            printf("ENQUEUED CPU JOB %d AT REFERENCE %d at TICK %d\n", temp.job, temp.ref, ticker);
+            //printf("ENQUEUED CPU JOB %d AT REFERENCE %d at TICK %d\n", temp.job, temp.ref, ticker);
             enqueue(cpu, temp.job);
             enqueue(cpuref, temp.ref);
+            enqueue(cpuidx, temp.idx);
             arrivalIdx++;
         }
         if (curIo.job == -1){
             if(!isEmpty(io)){
                 curIo.job = dequeue(io);
                 curIo.ref = dequeue(ioref);
-                printf("DEQUEUED IO JOB %d at REFERENCE %d\n", curIo.job, curIo.ref);
+                curIo.idx = dequeue(ioidx);
+                //printf("DEQUEUED IO JOB %d at REFERENCE %d\n", curIo.job, curIo.ref);
             }
         }
         if (curCpu.job == -1){
             curCpu.job = dequeue(cpu);
             curCpu.ref = dequeue(cpuref);
-            printf("DEQUEUED FIRST CPU JOB %d AT REF %d AT TICK %d\n", curCpu.job, curCpu.ref, ticker);
-
+            curCpu.idx = dequeue(cpuidx);
+            //printf("DEQUEUED FIRST CPU JOB %d AT REF %d AT TICK %d\n", curCpu.job, curCpu.ref, ticker);
         }
         if (curCpu.job == 0){
-            printf("CPU JOB IS DONE AT TICK %d\n", ticker);
-            if (processes[curCpu.ref].TotalJobCount == processes[curCpu.ref].TotalJobIdx){
+            //printf("CPU JOB IS DONE AT TICK %d\n", ticker);
+            if (processes[curCpu.ref].TotalJobCount == processes[curCpu.ref].TotalJobIdx && curCpu.idx == processes[curCpu.ref].CPUJobIdx-1){
                 
                 totalTime += ticker - processes[curCpu.ref].arrivalTime;
                 processes[curCpu.ref].TotalJobCount++;
                 tempo++;
-                printf("TEMPO IS NOW %d", tempo);
+                //printf("ADDED TO TOTAL TIME. TOTAL IS NOW %.0lf\n", totalTime);
             }
-            printf("TOTAL JOB COUNT = %d\n", processes[curCpu.ref].TotalJobCount);
+            //printf("TOTAL JOB COUNT = %d\n", processes[curCpu.ref].TotalJobCount);
             if (processes[curCpu.ref].IOJobCount != processes[curCpu.ref].IOJobIdx){
-                printf("ENQUEUED IOJOB %d FOR PROCESS %d AT TICK %d\n", processes[curCpu.ref].IOJobs[processes[curCpu.ref].IOJobCount], 
-                processes[curCpu.ref].IOJobCount, ticker);
+                //printf("ENQUEUED IOJOB %d FOR PROCESS %d AT TICK %d\n", processes[curCpu.ref].IOJobs[processes[curCpu.ref].IOJobCount], 
+                //processes[curCpu.ref].IOJobCount, ticker);
                 enqueue(io, processes[curCpu.ref].IOJobs[processes[curCpu.ref].IOJobCount]);
                 enqueue(ioref, processes[curCpu.ref].IOJobsRef[processes[curCpu.ref].IOJobCount]);
+                enqueue(ioidx, processes[curCpu.ref].IOJobCount);
                 processes[curCpu.ref].IOJobCount++;
                 processes[curCpu.ref].TotalJobCount++;
             }
-            printf("TOTAL JOB COUNT FOR PROCESS %d = %d. TOTAL IS %d\n", curCpu.ref, processes[curCpu.ref].TotalJobCount, processes[curCpu.ref].TotalJobIdx);
+            //printf("TOTAL JOB COUNT FOR PROCESS %d = %d. TOTAL IS %d\n", curCpu.ref, processes[curCpu.ref].TotalJobCount, processes[curCpu.ref].TotalJobIdx);
             if(!isEmpty(cpu)){
                 curCpu.job = dequeue(cpu);
                 curCpu.ref = dequeue(cpuref);
-                printf("DEQUEUED CPU JOB %d AT REF %d AT TICK %d\n", curCpu.job, curCpu.ref, ticker);
+                curCpu.idx = dequeue(cpuidx);
+                //printf("DEQUEUED CPU JOB %d AT REF %d AT TICK %d\n", curCpu.job, curCpu.ref, ticker);
             }
 
         }
-        if (curIo.job == 0){
-            printf("IO JOB IS DONE AT TICK %d\n", ticker);
-            if (processes[curIo.ref].TotalJobCount == processes[curIo.ref].TotalJobIdx){
+        if (curIo.job-1 == 0){
+           // printf("IO JOB IS DONE AT TICK %d\n", ticker);
+            if (processes[curIo.ref].TotalJobCount == processes[curIo.ref].TotalJobIdx && curIo.idx == processes[curIo.ref].IOJobIdx-1){
                 totalTime += ticker - processes[curIo.ref].arrivalTime;
                 tempo++;
+              //  printf("ADDED TO TOTAL TIME. TOTAL IS NOW %.0lf\n", totalTime);
+            }
+            //printf("CPUJOBCOUNT = %d, CPUJOBIDX = %d, REF = %d\n", processes[curIo.ref].CPUJobCount, processes[curCpu.ref].CPUJobIdx, curCpu.ref);
+            if (processes[curIo.ref].CPUJobCount != processes[curIo.ref].CPUJobIdx){
+                // printf("Enqueued CPUJOB %d with CPUJOBCOUNT %d FOR PROCESS %d AT TICK %d\n", processes[curIo.ref].CPUJobs[processes[curIo.ref].CPUJobCount]
+                //  , processes[curIo.ref].CPUJobCount, curIo.ref, ticker);
+                enqueue(cpu, processes[curIo.ref].CPUJobs[processes[curIo.ref].CPUJobCount]);
+                enqueue(cpuref, processes[curIo.ref].CPUJobsRef[processes[curIo.ref].CPUJobCount]);
+                enqueue(cpuidx, processes[curIo.ref].CPUJobCount);
+                processes[curIo.ref].CPUJobCount++;
+                processes[curIo.ref].TotalJobCount++;                    
             }
             if(!isEmpty(io)){
                 curIo.job = dequeue(io);
                 curIo.ref = dequeue(ioref);
-                printf("DEQUEUED IOJOB %d with REFERENCE %d\n", curIo.job, curIo.ref);
+                curIo.idx = dequeue(ioidx);
+               // printf("DEQUEUED IOJOB %d with REFERENCE %d\n", curIo.job, curIo.ref);
             }
-            if (processes[curIo.ref].CPUJobCount != processes[curCpu.ref].CPUJobIdx+1){
-                printf("Enqueued CPUJOB %d with CPUJOBCOUNT %d FOR PROCESS %d AT TICK %d\n", processes[curIo.ref].CPUJobs[processes[curIo.ref].CPUJobCount]
-                 , processes[curIo.ref].CPUJobCount, curIo.ref, ticker);
-                enqueue(cpu, processes[curIo.ref].CPUJobs[processes[curIo.ref].CPUJobCount]);
-                enqueue(cpuref, processes[curIo.ref].CPUJobsRef[processes[curIo.ref].CPUJobCount]);
-                processes[curIo.ref].CPUJobCount++;
-                processes[curIo.ref].TotalJobCount++;                    
-            }
-            printf("TOTAL JOB COUNT FOR PROCESS %d = %d. TOTAL IS %d\n", curIo.ref, processes[curIo.ref].TotalJobCount, 
-            processes[curIo.ref].TotalJobIdx);
+            //printf("TOTAL JOB COUNT FOR PROCESS %d = %d. TOTAL IS %d\n", curIo.ref, processes[curIo.ref].TotalJobCount, 
+            //processes[curIo.ref].TotalJobIdx);
         }
         // if (processes[curIo.ref].TotalJobCount == processes[curIo.ref].TotalJobIdx){
         //         printf("ADDED TO TOTAL TIME\n");
@@ -230,11 +246,14 @@ int main() {
         //         processes[curCpu.ref].TotalJobCount++;
         // }
         ticker++;
-        curCpu.job--;
-        if (curIo.job != -1){
+        if (curCpu.job > 0){
+            curCpu.job--;
+        }
+        if (curIo.job > -1){
             curIo.job--;
         }
     }
+    //printf("TOTALTIME BEFORE DIVISION = %.0lf\n", totalTime);
     totalTime = totalTime/proIdx;
     printf("%.0lf\n", totalTime);
 
