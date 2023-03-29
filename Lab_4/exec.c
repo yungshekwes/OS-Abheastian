@@ -6,9 +6,8 @@
 #include <string.h>
 #include <fcntl.h>
 
-#define STACK_SIZE 65535
+#define STACK_SIZE 8192
 static int PAGESIZE = 4096;
-
 
 struct elf_header read_elf_header(const char *elfFile){
     // Open ELF file
@@ -92,37 +91,6 @@ void dump_stack_light(void *stack) {
     printf("Stack bottom: %p\n", ((char*)(stack_ptr + STACK_SIZE))-1);
 }
 
-void *create_stack(int argc, char **argv, char **envp) {
-    uint64_t *stack = alloca(STACK_SIZE * sizeof(uint64_t));
-    void *orig = stack;
-
-    memset(stack, (void *) NULL, STACK_SIZE * sizeof(uint64_t));
-    
-    // we don't care about the 
-    stack[0] = (uint64_t) argc - 1;
-
-    // duplicate and memcpy
-    // argv is an array of pointers
-    // this needs to be moved to the stack
-
-    size_t env_size = 0;
-    size_t envc = 0;
-    for (int i = 0; envp[i] != NULL; i++) {
-        env_size += strlen(envp[i]) + 1;
-        envc++;
-    }
-    env_size *= sizeof(char); // At this point, env_size is the size of the envp data_flow
-
-    stack[1] = (uint64_t) argv[0];
-    for (int i = 2; i < argc; i++) {
-        stack[i] = (uint64_t) argv[i-1];
-    }
-    stack[argc + 1] = (uint64_t) NULL;
-
-    dump_stack(orig);
-    return orig;
-}
-
 int main(int argc, char *argv[], char *envp[]) {  
     struct elf_header header = read_elf_header("helloworld_static");
     struct elf_proghdr *progHeaders = read_prog_headers("helloworld_static", header);
@@ -171,11 +139,14 @@ int main(int argc, char *argv[], char *envp[]) {
     // Part 2b
     // Fill allocated memory with binary contents, taking into account all offsets to preserve structure
     for (int i = 0; i < header.proghdr_count; i++) {
-        if (progHeaders[i].type == ELF_PROG_LOAD) {;
+        if (progHeaders[i].type == ELF_PROG_LOAD) {
+            // Check if this memcpy works
             memcpy(base + progHeaders[i].virtual_address, fileBase + header.proghdr_offset + progHeaders[i].file_offset, progHeaders[i].size_memory);
+            //  strcmp(fileBase + header.proghdr_offset + progHeaders[i].file_offset, base + progHeaders[i].virtual_address) ? printf("Error, memcpy failed!\n") : printf("Success!\n");
         }
     }
 
+    
     // Part 2c
     // We're assuming this works
     // Set protection flags on memory regions based on program header flags
@@ -199,8 +170,53 @@ int main(int argc, char *argv[], char *envp[]) {
 
     // Part 4
     // Construct a fresh stack for the new program with the exact structure as described in appendix C
-    create_stack(argc, argv, envp);
+    uint64_t *stack = alloca(STACK_SIZE * sizeof(uint64_t));
+    // printf("size of uint64: %ld\n", sizeof(uint64_t));
+    memset(stack, '\0', STACK_SIZE * sizeof(uint64_t));
     
+    // load argc into stack
+    // -1 because we don't want to include exec
+    stack[0] = (uint64_t) argc - 1;
+
+    // load pointer to the first argv, then load the rest
+    stack[1] = (uint64_t) &argv[1];
+    for (int i = 2; i <= argc - 2; i++) {
+        stack[i] = (uint64_t) &argv[i];
+    }
+
+    // NULL terminate argv in stack
+    stack[argc - 1] = (uint64_t) NULL;
+
+    // find envc
+    int envc = 0;
+    for (int i = 0; envp[i] != NULL; i++) {
+        envc++;
+    }
+
+    // load pointer to the first envp, then load the rest
+    stack[argc] = (uint64_t) &envp[0];
+    for (int i = 0; i < envc; i++) {
+        stack[argc + 1 + i] = (uint64_t) &envp[1 + i];
+    }
+    
+    // NULL terminate envp in stack
+    stack[argc + envc] = (uint64_t) NULL;
+
+    // load pointer to the first auxv, then load the rest
+    int auxvc = 0;
+    stack[argc + envc + 1] = (uint64_t) envp[envc+2];
+    for (int i = envc + 3; envp[i] != AT_NULL; i++) {
+        stack[argc + envc + 1 + i] = (uint64_t) envp[i];
+        auxvc++;
+    }
+
+    // NULL terminate auxv in stack
+    stack[argc + envc + auxvc] = (uint64_t) NULL;
+
+    dump_stack(stack);
+
+    // Part 5: Set the exit point, load the stack pointer and jump to the entry point
+    //jump(base + header.proghdr_offset, stack);
     
     // Freeing allocated mmap memory
     if (munmap(fileBase, 10000000) == -1) {
