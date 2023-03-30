@@ -49,13 +49,13 @@ enum elf_auxvec_type {
     AT_NULL = 0,      // Always the last element, indicating end of vector
     AT_IGNORE = 1,    // Should be ignored
     AT_EXECFD = 2,    // File descriptor of the program
-    AT_PHDR = 3,      // Pointer to program headers of the program
-    AT_PHENT = 4,     // Size of each program header entry
-    AT_PHNUM = 5,     // Number of program headers
+    AT_PHDR = 3,      // Pointer to program headers of the program [change]
+    AT_PHENT = 4,     // Size of each program header entry [change]
+    AT_PHNUM = 5,     // Number of program headers [change]
     AT_PAGESZ = 6,    // System page size
     AT_BASE = 7,      // First address of memory where interpreter is loaded
     AT_FLAGS = 8,     // Some flags
-    AT_ENTRY = 9,     // Pointer to entrypoint of the program
+    AT_ENTRY = 9,     // Pointer to entrypoint of the program [change]
     AT_NOTELF = 10,   // When the program is NOT an ELF binary
     AT_UID = 11,      // UID
     AT_EUID = 12,     // Effective UID
